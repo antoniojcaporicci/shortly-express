@@ -16,7 +16,6 @@ var isLoggedIn = util.isLoggedIn;
 var findUser = util.findUser;
 var findLink = util.findLink;
 
-
 var app = express();
 
 app.set('views', __dirname + '/views');
@@ -27,8 +26,8 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-
 app.use(session({secret: 'cats', resave: false, saveUninitialized: true}))
+
 
 app.get('/', isLoggedIn, function(req, res) {
   res.render('index');
@@ -46,6 +45,28 @@ app.get('/links', isLoggedIn, function(req, res) {
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
+});
+
+
+app.post('/login', findUser, function (req, res) {
+
+  req.session.regenerate( function (err) {
+    if (!err) {
+      req.session.loggedIn = true;
+      res.redirect('/');
+    } else {
+      res.send('ERROR SESSION GENERATE FAIL');
+    }
+  });
+
+});
+
+app.post('/signup', findUser, function(req, res) {
+
+  Users.create(req.body).then(function(newUser) {
+    res.redirect('/');
+  });
+
 });
 
 app.post('/links', findLink, function(req, res) {
@@ -68,35 +89,6 @@ app.post('/links', findLink, function(req, res) {
   });
 
 });
-
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
-app.post('/login', findUser, function (req, res) {
-
-  req.session.regenerate( function (err) {
-    if (!err) {
-      req.session.loggedIn = true;
-      res.redirect('/');
-    } else {
-      res.send('ERROR SESSION GENERATE FAIL');
-    }
-  });
-
-});
-
-app.post('/signup', findUser, function(req, res) {
-
-  Users.create({
-    username: req.body.username,
-    password: req.body.password
-  })
-  .then(function(newUser) {
-    res.redirect('/');
-  })
-
-});
-
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
