@@ -26,7 +26,7 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
-app.use(session({secret: 'cats', resave: false, saveUninitialized: true}))
+app.use(session({secret: 'cats', resave: false, saveUninitialized: true}));
 
 
 app.get('/', isLoggedIn, function(req, res) {
